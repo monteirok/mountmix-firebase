@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-// import { Analytics } from "@genkit-ai/next/plugin"; // Removed due to module not found error
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,7 +26,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <Analytics /> */} {/* Removed due to module not found error */}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
         {children}
         <Toaster />
