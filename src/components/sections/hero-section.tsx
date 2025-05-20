@@ -1,13 +1,18 @@
+
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+// Link component is no longer needed here
 import { Button } from '@/components/ui/button';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-export function HeroSection() {
+interface HeroSectionProps {
+  onOpenQuoteModal: () => void;
+}
+
+export function HeroSection({ onOpenQuoteModal }: HeroSectionProps) {
   const targetRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -70,8 +75,13 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
           className="mt-10"
         >
-          <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-lg shadow-xl transform hover:scale-105 transition-transform">
-            <Link href="#contact">Request a Quote</Link>
+          <Button 
+            size="lg" 
+            className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-lg shadow-xl transform hover:scale-105 transition-transform"
+            onClick={onOpenQuoteModal}
+            aria-label="Request a quote for our services"
+          >
+            Request a Quote
           </Button>
         </motion.div>
       </motion.div>

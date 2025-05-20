@@ -1,8 +1,13 @@
-import { Mountain, Martini, Facebook, Instagram, Twitter } from 'lucide-react';
-import Link from 'next/link';
+
+import Link from 'next/link'; // Keep Link for other navigation
+import { Facebook, Instagram, Twitter } from 'lucide-react'; // Removed Martini and Mountain as Logo component handles its icon
 import { Logo } from '@/components/common/logo';
 
-export function Footer() {
+interface FooterProps {
+  onOpenQuoteModal: () => void;
+}
+
+export function Footer({ onOpenQuoteModal }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -18,10 +23,16 @@ export function Footer() {
           
           <nav className="flex flex-col items-center space-y-2">
             <h3 className="text-lg font-semibold mb-2">Quick Links</h3>
-            <Link href="#services" className="hover:text-accent transition-colors">Services</Link>
-            <Link href="#gallery" className="hover:text-accent transition-colors">Gallery</Link>
-            <Link href="#concierge" className="hover:text-accent transition-colors">Cocktail Concierge</Link>
-            <Link href="#contact" className="hover:text-accent transition-colors">Contact Us</Link>
+            <Link href="#services" className="hover:text-accent transition-colors text-sm">Services</Link>
+            <Link href="#gallery" className="hover:text-accent transition-colors text-sm">Gallery</Link>
+            <Link href="#concierge" className="hover:text-accent transition-colors text-sm">Cocktail Concierge</Link>
+            <button 
+              onClick={onOpenQuoteModal} 
+              className="hover:text-accent transition-colors text-sm"
+              aria-label="Open contact form modal"
+            >
+              Contact Us
+            </button>
           </nav>
 
           <div className="flex flex-col items-center md:items-end">

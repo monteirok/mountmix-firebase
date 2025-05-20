@@ -1,20 +1,25 @@
+
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SectionWrapper } from '@/components/common/section-wrapper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ContactFormSchema, type ContactFormValues } from '@/lib/schemas';
 import { submitContactForm } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Send, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-export function ContactSection() {
+interface ContactSectionProps {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+}
+
+export function ContactSection({ isOpen, onOpenChange }: ContactSectionProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,13 +45,13 @@ export function ContactSection() {
           variant: 'default',
         });
         form.reset();
+        onOpenChange(false); // Close modal on success
       } else {
         toast({
           title: 'Error',
           description: result.message || 'An unexpected error occurred.',
           variant: 'destructive',
         });
-        // Optionally set form errors if they are returned and structured for react-hook-form
         if (result.errors) {
           Object.entries(result.errors).forEach(([fieldName, fieldError]) => {
              if (Array.isArray(fieldError) && fieldError.length > 0) {
@@ -67,16 +72,18 @@ export function ContactSection() {
   };
 
   return (
-    <SectionWrapper id="contact" className="bg-secondary/20">
-      <div className="text-center mb-12 md:mb-16">
-        <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
-        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Request a Quote</h2>
-        <p className="text-lg md:text-xl text-foreground max-w-3xl mx-auto">
-          Ready to elevate your event? Fill out the form below, and we'll be in touch to discuss your custom cocktail experience.
-        </p>
-      </div>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl p-6 sm:p-8 md:p-10">
+        <DialogHeader className="text-center mb-6 md:mb-8">
+          <div className="flex flex-col items-center">
+            <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
+            <DialogTitle className="text-3xl md:text-4xl font-bold text-primary mb-3">Request a Quote</DialogTitle>
+            <DialogDescription className="text-lg md:text-xl text-foreground max-w-3xl mx-auto">
+              Ready to elevate your event? Fill out the form below, and we'll be in touch to discuss your custom cocktail experience.
+            </DialogDescription>
+          </div>
+        </DialogHeader>
 
-      <div className="max-w-2xl mx-auto bg-card p-6 sm:p-8 md:p-10 rounded-lg shadow-xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -159,7 +166,7 @@ export function ContactSection() {
             </Button>
           </form>
         </Form>
-      </div>
-    </SectionWrapper>
+      </DialogContent>
+    </Dialog>
   );
 }
