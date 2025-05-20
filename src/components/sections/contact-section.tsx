@@ -73,7 +73,7 @@ export function ContactSection({ isOpen, onOpenChange }: ContactSectionProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-6 sm:p-8 md:p-10 rounded-xl">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-lg max-h-[calc(100dvh-4rem)] overflow-y-auto p-6 sm:p-8 md:p-10 rounded-xl">
         <DialogHeader className="text-center mb-6 md:mb-8">
           <div className="flex flex-col items-center">
             <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
