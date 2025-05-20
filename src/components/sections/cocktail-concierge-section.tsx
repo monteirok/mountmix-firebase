@@ -8,7 +8,6 @@ import Image from 'next/image';
 import { SectionWrapper } from '@/components/common/section-wrapper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-// Removed Textarea import as it's no longer used in this component for flavor input
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -48,9 +47,8 @@ export function CocktailConciergeSection() {
 
   const handleTabChange = () => {
     setResults(null);
-    // Optionally, reset forms as well, though current behavior is fine.
-    // ingredientsForm.reset();
-    // flavorForm.reset();
+    ingredientsForm.reset();
+    flavorForm.reset();
   };
 
   const generateAndSetImage = async (imagePrompt: string, cocktailName: string, cocktailIndex: number) => {
@@ -230,7 +228,7 @@ export function CocktailConciergeSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-10 max-w-2xl mx-auto"
+          className="mt-10 max-w-4xl mx-auto" // Increased max-w to accommodate two columns better
         >
           <Card className="shadow-lg border-accent">
             <CardHeader>
@@ -241,17 +239,17 @@ export function CocktailConciergeSection() {
             </CardHeader>
             <CardContent>
               {results.suggestions && results.suggestions.length > 0 ? (
-                <ul className="space-y-3">
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                   {results.suggestions.map((cocktail, index) => (
                     <li key={index} className="text-foreground">
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button 
                             variant="link" 
-                            className="p-0 h-auto text-lg text-left font-medium text-primary hover:text-accent transition-colors flex items-center group"
+                            className="p-0 h-auto text-lg text-left font-medium text-primary hover:text-accent transition-colors flex items-center group w-full justify-start"
                           >
                             {cocktail.name}
-                            <Info className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors" />
+                            <Info className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-80 md:w-96 shadow-xl bg-card border-border p-4 rounded-lg">
@@ -319,3 +317,4 @@ export function CocktailConciergeSection() {
     </SectionWrapper>
   );
 }
+
