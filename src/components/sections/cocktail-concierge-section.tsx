@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
@@ -17,6 +17,20 @@ import { getCocktailSuggestionsByIngredients, getCocktailSuggestionsByFlavor, ge
 import { useToast } from '@/hooks/use-toast';
 import { Wand2, GlassWater, Loader2, ListChecks, Sparkles, Info, ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+// Debounce function (moved outside the component)
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<F>) => {
+    if (timeout !== null) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => func(...args), waitFor);
+  };
+
+  return debounced as (...args: Parameters<F>) => void;
+}
 
 type CocktailDetail = {
   name: string;
@@ -34,24 +48,33 @@ export function CocktailConciergeSection() {
   const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
   const [isLoadingFlavor, setIsLoadingFlavor] = useState(false);
   const [results, setResults] = useState<SuggestionResult | null>(null);
+  const [activeTab, setActiveTab] = useState('ingredients');
 
   const ingredientsForm = useForm<CocktailByIngredientsValues>({
     resolver: zodResolver(CocktailByIngredientsSchema),
     defaultValues: { ingredients: '' },
+    mode: 'onChange',
   });
 
   const flavorForm = useForm<CocktailByFlavorValues>({
     resolver: zodResolver(CocktailByFlavorSchema),
     defaultValues: { flavorPreferences: '' },
+    mode: 'onChange',
   });
 
-  const handleTabChange = () => {
+  const ingredientsQuery = ingredientsForm.watch('ingredients');
+  const flavorQuery = flavorForm.watch('flavorPreferences');
+
+  const handleTabChange = (value: string) => {
     setResults(null);
     ingredientsForm.reset();
     flavorForm.reset();
+    setIsLoadingIngredients(false);
+    setIsLoadingFlavor(false);
+    setActiveTab(value);
   };
 
-  const generateAndSetImage = async (imagePrompt: string, cocktailName: string, cocktailIndex: number) => {
+  const generateAndSetImage = useCallback(async (imagePrompt: string, cocktailName: string, cocktailIndex: number) => {
     try {
       const imageResponse = await generateCocktailImage({ prompt: imagePrompt });
       if ('imageUrl' in imageResponse && imageResponse.imageUrl) {
@@ -76,31 +99,31 @@ export function CocktailConciergeSection() {
         }
         return { suggestions: newSuggestions };
       });
-      toast({ title: 'Image Error', description: `Could not generate image for ${cocktailName}.`, variant: 'destructive' });
+      // Consider if individual image errors should be toasted
+      // toast({ title: 'Image Error', description: `Could not generate image for ${cocktailName}.`, variant: 'destructive' });
     }
-  };
+  }, [toast]); // setResults from useState is stable
 
-  const onIngredientsSubmit: SubmitHandler<CocktailByIngredientsValues> = async (data) => {
+  const processIngredientSuggestions = useCallback(async (data: CocktailByIngredientsValues) => {
+    if (data.ingredients.trim().length < 3) {
+      setResults(null);
+      setIsLoadingIngredients(false);
+      return;
+    }
     setIsLoadingIngredients(true);
-    setResults(null);
     try {
       const response = await getCocktailSuggestionsByIngredients(data);
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
         setResults({ suggestions: [] });
       } else if (response.cocktails && response.cocktails.length > 0) {
-        const suggestionsWithLoadingState = response.cocktails.map(c => ({ 
-          ...c, 
-          imageDataUri: 'loading' as const 
-        }));
+        const suggestionsWithLoadingState = response.cocktails.map(c => ({ ...c, imageDataUri: 'loading' as const }));
         setResults({ suggestions: suggestionsWithLoadingState });
-        
         suggestionsWithLoadingState.forEach((cocktail, index) => {
           generateAndSetImage(cocktail.imagePrompt, cocktail.name, index);
         });
-
       } else {
-        setResults({ suggestions: [] }); 
+        setResults({ suggestions: [] });
         toast({ title: 'No Matches', description: "Couldn't find specific cocktails. Try different ingredients!", variant: 'default' });
       }
     } catch (error) {
@@ -109,27 +132,26 @@ export function CocktailConciergeSection() {
     } finally {
       setIsLoadingIngredients(false);
     }
-  };
+  }, [toast, generateAndSetImage]);
 
-  const onFlavorSubmit: SubmitHandler<CocktailByFlavorValues> = async (data) => {
+  const processFlavorSuggestions = useCallback(async (data: CocktailByFlavorValues) => {
+    if (data.flavorPreferences.trim().length < 3) {
+      setResults(null);
+      setIsLoadingFlavor(false);
+      return;
+    }
     setIsLoadingFlavor(true);
-    setResults(null);
     try {
       const response = await getCocktailSuggestionsByFlavor(data);
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
         setResults({ suggestions: [] });
       } else if (response.cocktailSuggestions && response.cocktailSuggestions.length > 0) {
-         const suggestionsWithLoadingState = response.cocktailSuggestions.map(c => ({ 
-           ...c, 
-           imageDataUri: 'loading' as const 
-          }));
+         const suggestionsWithLoadingState = response.cocktailSuggestions.map(c => ({ ...c, imageDataUri: 'loading' as const }));
          setResults({ suggestions: suggestionsWithLoadingState });
-
          suggestionsWithLoadingState.forEach((cocktail, index) => {
           generateAndSetImage(cocktail.imagePrompt, cocktail.name, index);
         });
-
       } else {
          setResults({ suggestions: [] });
          toast({ title: 'No Matches', description: "Couldn't find suggestions for that flavor. Try being more specific or general!", variant: 'default' });
@@ -140,6 +162,39 @@ export function CocktailConciergeSection() {
     } finally {
       setIsLoadingFlavor(false);
     }
+  }, [toast, generateAndSetImage]);
+
+  const debouncedProcessIngredientSuggestions = useCallback(debounce(processIngredientSuggestions, 500), [processIngredientSuggestions]);
+  const debouncedProcessFlavorSuggestions = useCallback(debounce(processFlavorSuggestions, 500), [processFlavorSuggestions]);
+
+  useEffect(() => {
+    if (activeTab === 'ingredients') {
+      if (ingredientsQuery.trim().length >= 3) {
+        debouncedProcessIngredientSuggestions({ ingredients: ingredientsQuery });
+      } else if (ingredientsQuery.trim().length === 0) {
+        setResults(null);
+        setIsLoadingIngredients(false);
+      }
+    }
+  }, [ingredientsQuery, debouncedProcessIngredientSuggestions, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'flavor') {
+      if (flavorQuery.trim().length >= 3) {
+        debouncedProcessFlavorSuggestions({ flavorPreferences: flavorQuery });
+      } else if (flavorQuery.trim().length === 0) {
+        setResults(null);
+        setIsLoadingFlavor(false);
+      }
+    }
+  }, [flavorQuery, debouncedProcessFlavorSuggestions, activeTab]);
+
+  const onIngredientsSubmit: SubmitHandler<CocktailByIngredientsValues> = (data) => {
+    processIngredientSuggestions(data);
+  };
+
+  const onFlavorSubmit: SubmitHandler<CocktailByFlavorValues> = (data) => {
+    processFlavorSuggestions(data);
   };
 
   return (
@@ -181,7 +236,7 @@ export function CocktailConciergeSection() {
                     )}
                   />
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoadingIngredients}>
-                    {isLoadingIngredients ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GlassWater className="mr-2 h-4 w-4" />}
+                    {isLoadingIngredients && !results ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GlassWater className="mr-2 h-4 w-4" />}
                     Get Suggestions
                   </Button>
                 </form>
@@ -213,7 +268,7 @@ export function CocktailConciergeSection() {
                     )}
                   />
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoadingFlavor}>
-                    {isLoadingFlavor ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                    {isLoadingFlavor && !results ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     Find Cocktails
                   </Button>
                 </form>
@@ -228,7 +283,7 @@ export function CocktailConciergeSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-10 max-w-4xl mx-auto" // Increased max-w to accommodate two columns better
+          className="mt-10 max-w-4xl mx-auto"
         >
           <Card className="shadow-lg border-accent">
             <CardHeader>
@@ -272,14 +327,13 @@ export function CocktailConciergeSection() {
                                     <Image
                                       src={cocktail.imageDataUri}
                                       alt={`Generated image for ${cocktail.name}`}
-                                      data-ai-hint={cocktail.imagePrompt} // Keep hint for accessibility/fallback context
+                                      data-ai-hint={cocktail.imagePrompt}
                                       width={200}
                                       height={200}
                                       className="object-cover w-full h-full"
                                     />
                                   );
                                 }
-                                // Default placeholder if imageDataUri is undefined (e.g. initial state before 'loading' is set)
                                 return (
                                   <Image
                                     src={`https://placehold.co/200x200.png`}
@@ -287,7 +341,7 @@ export function CocktailConciergeSection() {
                                     data-ai-hint={cocktail.imagePrompt}
                                     width={200}
                                     height={200}
-                                    className="object-cover w-full h-full opacity-50" // Differentiate placeholder visually
+                                    className="object-cover w-full h-full opacity-50"
                                   />
                                 );
                               })()}
