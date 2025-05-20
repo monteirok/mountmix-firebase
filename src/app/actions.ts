@@ -1,8 +1,10 @@
+
 'use server';
 
 import { ContactFormSchema, type ContactFormValues } from '@/lib/schemas';
 import { cocktailSuggestionsByIngredients, type CocktailSuggestionsInput, type CocktailSuggestionsOutput } from '@/ai/flows/cocktail-suggestions';
 import { cocktailSuggestionsByFlavor, type CocktailSuggestionsByFlavorInput, type CocktailSuggestionsByFlavorOutput } from '@/ai/flows/cocktail-suggestions-by-flavor';
+import { generateCocktailImage as genkitGenerateCocktailImage, type GenerateCocktailImageInput, type GenerateCocktailImageOutput } from '@/ai/flows/generate-cocktail-image-flow';
 
 
 export async function submitContactForm(
@@ -54,5 +56,21 @@ export async function getCocktailSuggestionsByFlavor(
   } catch (error) {
     console.error("Error getting cocktail suggestions by flavor:", error);
     return { error: "Failed to get cocktail suggestions. Please try again." };
+  }
+}
+
+export async function generateCocktailImage(
+  data: GenerateCocktailImageInput
+): Promise<GenerateCocktailImageOutput | { error: string }> {
+  try {
+    const result = await genkitGenerateCocktailImage(data);
+    if (!result.imageUrl) {
+        return { error: "Image generation succeeded but returned no URL." };
+    }
+    return result;
+  } catch (error) {
+    console.error("Error generating cocktail image:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to generate image. Please try again.";
+    return { error: errorMessage };
   }
 }

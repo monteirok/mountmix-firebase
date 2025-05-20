@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,15 +14,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CocktailByIngredientsSchema, CocktailByFlavorSchema, type CocktailByIngredientsValues, type CocktailByFlavorValues } from '@/lib/schemas';
-import { getCocktailSuggestionsByIngredients, getCocktailSuggestionsByFlavor } from '@/app/actions';
+import { getCocktailSuggestionsByIngredients, getCocktailSuggestionsByFlavor, generateCocktailImage } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Wand2, GlassWater, Loader2, ListChecks, Sparkles, Info } from 'lucide-react';
+import { Wand2, GlassWater, Loader2, ListChecks, Sparkles, Info, ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 type CocktailDetail = {
   name: string;
   recipe: string;
   imagePrompt: string;
+  imageDataUri?: string | 'loading' | 'error'; // Added for dynamic image loading
 };
 
 type SuggestionResult = {
@@ -52,9 +54,10 @@ export function CocktailConciergeSection() {
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
       } else if (response.cocktails && response.cocktails.length > 0) {
-        setResults({ suggestions: response.cocktails });
+        const suggestionsWithImageState = response.cocktails.map(c => ({ ...c, imageDataUri: undefined as (string | 'loading' | 'error' | undefined) }));
+        setResults({ suggestions: suggestionsWithImageState });
       } else {
-        setResults({ suggestions: [] }); // Set to empty array for consistent handling
+        setResults({ suggestions: [] }); 
         toast({ title: 'No Matches', description: "Couldn't find specific cocktails. Try different ingredients!", variant: 'default' });
       }
     } catch (error) {
@@ -72,15 +75,59 @@ export function CocktailConciergeSection() {
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
       } else if (response.cocktailSuggestions && response.cocktailSuggestions.length > 0) {
-         setResults({ suggestions: response.cocktailSuggestions });
+         const suggestionsWithImageState = response.cocktailSuggestions.map(c => ({ ...c, imageDataUri: undefined as (string | 'loading' | 'error' | undefined) }));
+         setResults({ suggestions: suggestionsWithImageState });
       } else {
-         setResults({ suggestions: [] }); // Set to empty array
+         setResults({ suggestions: [] });
          toast({ title: 'No Matches', description: "Couldn't find suggestions for that flavor. Try being more specific or general!", variant: 'default' });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to get suggestions. Please try again.', variant: 'destructive' });
     } finally {
       setIsLoadingFlavor(false);
+    }
+  };
+
+  const handlePopoverOpenChange = async (isOpen: boolean, cocktailIndex: number, imagePromptToUse: string) => {
+    if (isOpen && results && results.suggestions[cocktailIndex] && results.suggestions[cocktailIndex].imageDataUri === undefined) {
+      
+      setResults(prevResults => {
+        if (!prevResults) return null;
+        const newSuggestions = [...prevResults.suggestions];
+        if (newSuggestions[cocktailIndex]) {
+          newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: 'loading' };
+        }
+        return { suggestions: newSuggestions };
+      });
+  
+      try {
+        const imageResponse = await generateCocktailImage({ prompt: imagePromptToUse }); 
+        
+        if ('imageUrl' in imageResponse && imageResponse.imageUrl) {
+          setResults(prevResults => {
+            if (!prevResults) return null;
+            const newSuggestions = [...prevResults.suggestions];
+            if (newSuggestions[cocktailIndex]) {
+              newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: imageResponse.imageUrl };
+            }
+            return { suggestions: newSuggestions };
+          });
+        } else {
+          const errorMessage = (imageResponse as { error: string }).error || 'Image generation returned no URL.';
+          throw new Error(errorMessage);
+        }
+      } catch (error) {
+        console.error("Failed to generate cocktail image:", error);
+        setResults(prevResults => {
+          if (!prevResults) return null;
+          const newSuggestions = [...prevResults.suggestions];
+          if (newSuggestions[cocktailIndex]) {
+            newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: 'error' };
+          }
+          return { suggestions: newSuggestions };
+        });
+        toast({ title: 'Image Error', description: (error instanceof Error ? error.message : 'Could not generate cocktail image.'), variant: 'destructive' });
+      }
     }
   };
 
@@ -184,7 +231,7 @@ export function CocktailConciergeSection() {
                 <ul className="space-y-3">
                   {results.suggestions.map((cocktail, index) => (
                     <li key={index} className="text-foreground">
-                      <Popover>
+                      <Popover onOpenChange={(isOpen) => handlePopoverOpenChange(isOpen, index, cocktail.imagePrompt)}>
                         <PopoverTrigger asChild>
                           <Button 
                             variant="link" 
@@ -196,15 +243,43 @@ export function CocktailConciergeSection() {
                         </PopoverTrigger>
                         <PopoverContent className="w-80 md:w-96 shadow-xl bg-card border-border p-4 rounded-lg">
                           <div className="grid gap-4">
-                            <div className="aspect-square w-full max-w-[180px] mx-auto bg-muted/50 rounded-md overflow-hidden ring-1 ring-border">
-                              <Image
-                                src={`https://placehold.co/200x200.png`}
-                                alt={`Placeholder image for ${cocktail.name}`}
-                                data-ai-hint={cocktail.imagePrompt}
-                                width={200}
-                                height={200}
-                                className="object-cover w-full h-full"
-                              />
+                            <div className="aspect-square w-full max-w-[180px] mx-auto bg-muted/50 rounded-md overflow-hidden ring-1 ring-border flex items-center justify-center">
+                              {(() => {
+                                if (cocktail.imageDataUri === 'loading') {
+                                  return <Loader2 className="h-10 w-10 animate-spin text-primary" />;
+                                }
+                                if (cocktail.imageDataUri === 'error') {
+                                  return (
+                                    <div className="text-destructive text-center p-2 flex flex-col items-center justify-center">
+                                      <ImageIcon className="h-8 w-8 mb-1 opacity-70" />
+                                      <p className="text-xs">Image Error</p>
+                                    </div>
+                                  );
+                                }
+                                if (typeof cocktail.imageDataUri === 'string' && cocktail.imageDataUri.startsWith('data:image')) {
+                                  return (
+                                    <Image
+                                      src={cocktail.imageDataUri}
+                                      alt={`Generated image for ${cocktail.name}`}
+                                      data-ai-hint={cocktail.imagePrompt}
+                                      width={200}
+                                      height={200}
+                                      className="object-cover w-full h-full"
+                                    />
+                                  );
+                                }
+                                // Default placeholder
+                                return (
+                                  <Image
+                                    src={`https://placehold.co/200x200.png`}
+                                    alt={`Placeholder for ${cocktail.name}`}
+                                    data-ai-hint={cocktail.imagePrompt}
+                                    width={200}
+                                    height={200}
+                                    className="object-cover w-full h-full"
+                                  />
+                                );
+                              })()}
                             </div>
                             <div>
                               <h4 className="font-semibold text-xl leading-none mb-2 text-primary">{cocktail.name}</h4>
