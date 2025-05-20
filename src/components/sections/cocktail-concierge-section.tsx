@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { SectionWrapper } from '@/components/common/section-wrapper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+// Removed Textarea import as it's no longer used in this component for flavor input
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -45,6 +45,13 @@ export function CocktailConciergeSection() {
     resolver: zodResolver(CocktailByFlavorSchema),
     defaultValues: { flavorPreferences: '' },
   });
+
+  const handleTabChange = () => {
+    setResults(null);
+    // Optionally, reset forms as well, though current behavior is fine.
+    // ingredientsForm.reset();
+    // flavorForm.reset();
+  };
 
   const generateAndSetImage = async (imagePrompt: string, cocktailName: string, cocktailIndex: number) => {
     try {
@@ -147,7 +154,7 @@ export function CocktailConciergeSection() {
         </p>
       </div>
 
-      <Tabs defaultValue="ingredients" className="max-w-2xl mx-auto">
+      <Tabs defaultValue="ingredients" className="max-w-2xl mx-auto" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2 mb-8">
           <TabsTrigger value="ingredients" className="py-3"><ListChecks className="mr-2 h-5 w-5" />By Ingredients</TabsTrigger>
           <TabsTrigger value="flavor" className="py-3"><Sparkles className="mr-2 h-5 w-5" />By Flavor</TabsTrigger>
@@ -167,7 +174,7 @@ export function CocktailConciergeSection() {
                     name="ingredients"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Available Ingredients</FormLabel>
+                        <FormLabel>Available Ingredients (comma-separated)</FormLabel>
                         <FormControl>
                           <Input placeholder="e.g., vodka, lime juice, ginger beer" {...field} />
                         </FormControl>
@@ -189,7 +196,7 @@ export function CocktailConciergeSection() {
           <Card className="shadow-xl">
             <CardHeader>
               <CardTitle>Suggest Cocktails by Flavor</CardTitle>
-              <CardDescription>Describe your desired flavor profile (e.g., sweet and fruity, smoky and bitter), and we'll find matching cocktails.</CardDescription>
+              <CardDescription>Enter your desired flavors (comma-separated), and we'll find matching cocktails.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...flavorForm}>
@@ -199,9 +206,9 @@ export function CocktailConciergeSection() {
                     name="flavorPreferences"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Flavor Preferences</FormLabel>
+                        <FormLabel>Flavor Preferences (comma-separated)</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="e.g., looking for something refreshing and citrusy, not too sweet" {...field} rows={3} />
+                          <Input placeholder="e.g., sweet, fruity, spicy" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
