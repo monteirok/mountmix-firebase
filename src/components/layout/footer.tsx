@@ -41,8 +41,12 @@ export function Footer({ onOpenQuoteModal }: FooterProps) {
             <h3 className="text-lg font-semibold mb-3">Connect With Us</h3>
             <div className="flex space-x-4">
               {/* <Link href="#" aria-label="Facebook" className="hover:text-accent transition-colors"><Facebook size={24} /></Link> */}
+<<<<<<< HEAD
               <Link href=""></Link>
               <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
+=======
+              <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors" target='_blank'><Instagram size={24} /></Link>
+>>>>>>> ebf4733e5b1187f4a38545be375d1856d0ef6a8f
               {/* <Link href="#" aria-label="Twitter" className="hover:text-accent transition-colors"><Twitter size={24} /></Link> */}
               <Link href=""></Link>
             </div>

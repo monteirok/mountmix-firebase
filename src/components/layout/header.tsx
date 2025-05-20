@@ -82,6 +82,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
               </div>
               <nav className="flex flex-col gap-4 justify-center items-center">
                 {navItems.map((item) => (
+<<<<<<< HEAD
                   <Link
                     key={item.label}
                     href={item.href}
@@ -92,6 +93,29 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                   </Link>
                 ))}
                 <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors" onClick={closeSheet}><Instagram size={24} /></Link>
+=======
+                  item.action ? (
+                    <button
+                      key={item.label}
+                      onClick={() => { item.action!(); closeSheet(); }}
+                      className="mtext-lg font-medium text-foreground hover:text-primary transition-colors text-left"
+                      aria-label={`Open ${item.label} modal`}
+                    >
+                      {item.label}
+                    </button>
+                  ) : (
+                    <Link
+                      key={item.label}
+                      href={item.href!}
+                      onClick={closeSheet}
+                      className="text-lg font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                ))}
+                <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
+>>>>>>> ebf4733e5b1187f4a38545be375d1856d0ef6a8f
                 <Button variant="default" size="lg" className="w-[10rem] mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { onOpenQuoteModal(); closeSheet(); }}>
                   Book Now
                 </Button>
