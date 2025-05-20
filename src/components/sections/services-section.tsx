@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -5,6 +6,7 @@ import { SectionWrapper } from '@/components/common/section-wrapper';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Martini, Users, CalendarDays, Mountain } from 'lucide-react';
+import { motion, type Variants } from 'framer-motion';
 
 const services = [
   {
@@ -30,6 +32,20 @@ const services = [
   },
 ];
 
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.15,
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  }),
+};
+
 export function ServicesSection() {
   return (
     <SectionWrapper id="services" className="bg-secondary/20">
@@ -43,53 +59,37 @@ export function ServicesSection() {
 
       <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
         {services.map((service, index) => (
-          <div key={index} className="bg-card p-6 rounded-lg shadow-lg flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+          <motion.div
+            key={index}
+            className="bg-card p-6 rounded-lg shadow-lg flex flex-col items-center text-center"
+            custom={index}
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            whileHover={{ scale: 1.05, y: -8, boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          >
             <div className="mb-4 p-3 bg-primary/10 rounded-full">
               {service.icon}
             </div>
             <h3 className="text-xl font-semibold text-primary mb-2">{service.title}</h3>
             <p className="text-muted-foreground text-sm mb-4 flex-grow">{service.description}</p>
-            <div className="w-full h-48 relative rounded-md overflow-hidden mb-4">
-              <Image 
-                src={service.image} 
-                alt={service.title} 
+            <div className="w-full h-48 relative rounded-md overflow-hidden mb-4 group">
+              <Image
+                src={service.image}
+                alt={service.title}
                 data-ai-hint={service.imageHint}
-                fill 
-                className="object-cover"
+                fill
+                className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
               />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       <div className="mt-12 md:mt-16 text-center">
         <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-3 text-base shadow-lg">
-          {/* The "Plan Your Event" button in services section should point to the contact modal trigger, 
-              but since page.tsx controls modal, we can't directly call onOpenQuoteModal. 
-              For now, it links to #contact, which is the ID of the contact modal/section.
-              If contact section is purely a modal with no on-page presence, this link might need adjustment
-              or the onOpenQuoteModal function passed down.
-              Given current setup, contact-section is a modal in page.tsx, so this should be fine as Header/Footer/Hero handle modal.
-              However, the ContactSection itself doesn't have an id="contact" anymore.
-              The ideal would be to pass onOpenQuoteModal here too, or change the link to simply open the modal.
-              For now, keeping it as #contact, assuming a user might also want to scroll to where contact *would* be if it were a section.
-              A better approach for SPA-like modals is to use the onClick handler.
-              Let's change this to link to the #concierge section as a placeholder since contact is a modal
-              or remove the button if it's confusing.
-              Or, best: make it trigger the modal, requires passing the prop.
-              The "Plan Your Event" button should ideally open the modal.
-              Since the modal state is managed in page.tsx, this component cannot directly open it without prop drilling.
-              A simple fix is to link to an element whose click is handled by page.tsx, or remove this button.
-              Let's make this button also trigger the modal like others. To do this, ServicesSection needs onOpenQuoteModal.
-              For now, I will leave the Link to #contact as is, assuming the user might want a generic anchor.
-              However, the contact form is now a modal.
-              Let's update this to just link to the top or remove if confusing.
-              The existing page.tsx does not pass `onOpenQuoteModal` to `ServicesSection`.
-              Let's change the ServicesSection button to link to the #concierge section for now,
-              as "Plan Your Event" leading to AI concierge could be a valid UX path.
-              Alternatively, it could be removed or changed to "Explore Our Services".
-              Given the context, let's change its text and link to `#gallery` to encourage browsing.
-           */}
           <Link href="#gallery">View Our Gallery</Link>
         </Button>
       </div>

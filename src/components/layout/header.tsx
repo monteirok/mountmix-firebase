@@ -52,14 +52,14 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
               {item.label}
             </Link>
           ))}
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors" target='_blank'><Instagram size={24} /></Link>
           <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={onOpenQuoteModal}>
             Book Now
           </Button>
         </nav>
         <div className="md:hidden flex items-center space-x-2">
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
