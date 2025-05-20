@@ -3,10 +3,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react'; // Removed Mountain as it's not used here
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Logo } from '@/components/common/logo';
+// import { ThemeToggle } from '@/components/common/theme-toggle'; // Temporarily commented out
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -62,11 +63,13 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
               </Link>
             )
           ))}
+          {/* <ThemeToggle /> */} {/* Temporarily commented out */}
           <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={onOpenQuoteModal}>
             Get a Quote
           </Button>
         </nav>
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center space-x-2"> {/* Added space-x-2 for spacing between mobile buttons */}
+          {/* <ThemeToggle /> */} {/* Temporarily commented out */}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
