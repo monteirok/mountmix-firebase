@@ -40,9 +40,9 @@ export function Footer({ onOpenQuoteModal }: FooterProps) {
           <div className="flex flex-col items-center md:items-end">
             <h3 className="text-lg font-semibold mb-3">Connect With Us</h3>
             <div className="flex space-x-4">
-              <Link href="#" aria-label="Facebook" className="hover:text-accent transition-colors"><Facebook size={24} /></Link>
-              <Link href="#" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
-              <Link href="#" aria-label="Twitter" className="hover:text-accent transition-colors"><Twitter size={24} /></Link>
+              {/* <Link href="#" aria-label="Facebook" className="hover:text-accent transition-colors"><Facebook size={24} /></Link> */}
+              <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
+              {/* <Link href="#" aria-label="Twitter" className="hover:text-accent transition-colors"><Twitter size={24} /></Link> */}
             </div>
             <p className="text-sm mt-4">Canmore, AB, Canada</p>
           </div>
