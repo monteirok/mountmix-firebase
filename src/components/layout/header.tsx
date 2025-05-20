@@ -77,7 +77,11 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] bg-background p-6">
+            <SheetContent 
+              side="right" 
+              className="w-[280px] bg-background p-6"
+              hideDefaultCloseButton={true} // Add this prop
+            >
               <div className="mb-8 flex justify-between items-center">
                 <Logo />
                 <Button variant="ghost" size="icon" onClick={closeSheet} className="-mr-2">
