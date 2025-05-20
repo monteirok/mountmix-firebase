@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/common/theme-provider';
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,6 +42,10 @@ export default function RootLayout({
             <Toaster />
           </div>
         </ThemeProvider>
+        
+        {/* Vercel */}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
