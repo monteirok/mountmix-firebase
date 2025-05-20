@@ -15,6 +15,7 @@ import { CocktailByIngredientsSchema, CocktailByFlavorSchema, type CocktailByIng
 import { getCocktailSuggestionsByIngredients, getCocktailSuggestionsByFlavor } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Wand2, GlassWater, Loader2, ListChecks, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 type SuggestionResult = {
   type: 'ingredients' | 'flavor';
