@@ -35,7 +35,7 @@ export function HeroSection({ onOpenQuoteModal }: HeroSectionProps) {
         <Image
           src="https://placehold.co/1920x1280.png"
           alt="Panoramic view of the Canadian Rockies with a hint of a cocktail setup"
-          data-ai-hint="canadian rockies landscape"
+          data-ai-hint="rockies landscape"
           fill
           priority
           className="object-cover"
@@ -59,7 +59,7 @@ export function HeroSection({ onOpenQuoteModal }: HeroSectionProps) {
         >
           Elevate Your Event with
           <br />
-          <span className="text-accent block mt-2 md:mt-4">Rockies Libations</span>
+          <span className="text-accent block mt-2 md:mt-4">Mountain Mixology</span>
         </motion.h1>
         <motion.p 
           className="mt-6 max-w-xl text-lg sm:text-xl md:text-2xl text-neutral-200 drop-shadow-sm"

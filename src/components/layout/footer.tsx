@@ -46,7 +46,7 @@ export function Footer({ onOpenQuoteModal }: FooterProps) {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-secondary-foreground/20 text-center text-sm">
-          <p>&copy; {currentYear} Rockies Libations. All rights reserved.</p>
+          <p>&copy; {currentYear} Mountain Mixology. All rights reserved.</p>
         </div>
       </div>
     </footer>

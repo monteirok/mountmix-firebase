@@ -7,7 +7,7 @@ import {ImageIcon} from 'lucide-react';
 
 const galleryImages = [
   { src: 'https://placehold.co/600x400.png', alt: 'Elegant cocktail presentation at an event', hint: 'cocktail event' },
-  { src: 'https://placehold.co/600x800.png', alt: 'A signature craft cocktail with mountain backdrop', hint: 'craft cocktail mountains' },
+  { src: 'https://placehold.co/600x800.png', alt: 'A signature craft cocktail with mountain backdrop', hint: 'cocktail mountains' },
   { src: 'https://placehold.co/800x600.png', alt: 'Guests enjoying drinks at a mountain party', hint: 'mountain party' },
   { src: 'https://placehold.co/600x400.png', alt: 'Close-up of a colorful, garnished drink', hint: 'elegant drinks' },
   { src: 'https://placehold.co/800x600.png', alt: 'Stylish mobile bar setup for an outdoor event', hint: 'bar setup' },

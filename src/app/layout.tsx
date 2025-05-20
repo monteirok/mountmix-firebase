@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Rockies Libations | Craft Cocktail Catering',
+  title: 'Mountain Mixology | Craft Cocktail Catering',
   description: 'Premium craft-cocktail catering service in Canmore, AB, inspired by the Canadian Rockies.',
-  keywords: ['cocktail catering', 'Canmore', 'Alberta', 'mixology', 'events', 'Canadian Rockies'],
+  keywords: ['cocktail catering', 'Canmore', 'Alberta', 'mixology', 'events', 'Canadian Rockies', 'Mountain Mixology'],
 };
 
 export default function RootLayout({
