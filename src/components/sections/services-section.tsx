@@ -6,7 +6,7 @@ import { SectionWrapper } from '@/components/common/section-wrapper';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Martini, Users, CalendarDays, Mountain } from 'lucide-react';
-import { motion, type Variants } from 'framer-motion';
+// Removed: import { motion, type Variants } from 'framer-motion';
 
 const services = [
   {
@@ -14,37 +14,25 @@ const services = [
     title: 'Craft Cocktail Catering',
     description: 'Bespoke cocktail menus tailored to your event theme and preferences, using premium ingredients and homemade syrups.',
     image: 'https://placehold.co/600x400.png',
-    imageHint: 'cocktail preparation',
+    imageHint: 'cocktail preparation', // Hint for Unsplash search
   },
   {
     icon: <Users className="h-10 w-10 text-primary" />,
     title: 'Professional Mixologists',
     description: 'Our experienced and charismatic bartenders provide exceptional service, ensuring your guests have an unforgettable experience.',
     image: 'https://placehold.co/600x400.png',
-    imageHint: 'bartender drinks',
+    imageHint: 'bartender service', // Hint for Unsplash search
   },
   {
     icon: <CalendarDays className="h-10 w-10 text-primary" />,
     title: 'Events of All Sizes',
     description: 'From intimate gatherings and weddings to corporate events and large parties, we cater to all occasions in Canmore and surrounding areas.',
     image: 'https://placehold.co/600x400.png',
-    imageHint: 'catering setup',
+    imageHint: 'event catering', // Hint for Unsplash search
   },
 ];
 
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.15,
-      duration: 0.5,
-      ease: "easeOut",
-    },
-  }),
-};
+// Removed cardVariants
 
 export function ServicesSection() {
   return (
@@ -59,16 +47,10 @@ export function ServicesSection() {
 
       <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
         {services.map((service, index) => (
-          <motion.div
+          <div
             key={index}
-            className="bg-card p-6 rounded-lg shadow-lg flex flex-col items-center text-center"
-            custom={index}
-            variants={cardVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            whileHover={{ scale: 1.05, y: -8, boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            className="bg-card p-6 rounded-lg shadow-lg flex flex-col items-center text-center hover:shadow-xl transition-shadow duration-300"
+            // Removed Framer Motion props: custom, variants, initial, whileInView, viewport, whileHover, transition
           >
             <div className="mb-4 p-3 bg-primary/10 rounded-full">
               {service.icon}
@@ -84,7 +66,7 @@ export function ServicesSection() {
                 className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
               />
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
