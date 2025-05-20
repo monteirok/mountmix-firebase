@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'; // Added SheetTitle
 import { Logo } from '@/components/common/logo';
-// import { ThemeToggle } from '@/components/common/theme-toggle';
+import { ThemeToggle } from '@/components/common/theme-toggle';
 import { cn } from '@/lib/utils';
+import { Instagram } from 'lucide-react';
 
 interface HeaderProps {
   onOpenQuoteModal: () => void;
@@ -43,32 +44,22 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
         <Logo />
         <nav className="hidden items-center space-x-6 md:flex">
           {navItems.map((item) => (
-            item.action ? ( 
-              <button
-                key={item.label}
-                onClick={item.action}
-                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-                aria-label={`Open ${item.label} modal`}
-              >
-                {item.label}
-              </button>
-            ) : (
-              <Link
-                key={item.label}
-                href={item.href!}
-                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-              >
-                {item.label}
-              </Link>
-            )
+            <Link
+              key={item.label}
+              href={item.href}
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              {item.label}
+            </Link>
           ))}
-          {/* <ThemeToggle /> */}
+          <ThemeToggle />
+          <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors" target='_blank'><Instagram size={24} /></Link>
           <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={onOpenQuoteModal}>
             Book Now
           </Button>
         </nav>
         <div className="md:hidden flex items-center space-x-2">
-          {/* <ThemeToggle /> */}
+          <ThemeToggle />
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -81,6 +72,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
               className="w-[280px] bg-background p-6"
               hideDefaultCloseButton={true}
             >
+              <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle> {/* Accessible title */}
               <div className="mb-8 flex justify-between items-center">
                 <Logo />
                 <Button variant="ghost" size="icon" onClick={closeSheet} className="-mr-2">
@@ -88,29 +80,19 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                   <span className="sr-only">Close menu</span>
                 </Button>
               </div>
-              <nav className="flex flex-col space-y-4">
+              <nav className="flex flex-col gap-4 justify-center items-center">
                 {navItems.map((item) => (
-                  item.action ? (
-                    <button
-                      key={item.label}
-                      onClick={() => { item.action!(); closeSheet(); }}
-                      className="text-lg font-medium text-foreground hover:text-primary transition-colors text-left"
-                      aria-label={`Open ${item.label} modal`}
-                    >
-                      {item.label}
-                    </button>
-                  ) : (
-                    <Link
-                      key={item.label}
-                      href={item.href!}
-                      onClick={closeSheet}
-                      className="text-lg font-medium text-foreground hover:text-primary transition-colors"
-                    >
-                      {item.label}
-                    </Link>
-                  )
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={closeSheet}
+                    className="text-lg font-medium text-foreground hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </Link>
                 ))}
-                <Button variant="default" size="lg" className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { onOpenQuoteModal(); closeSheet(); }}>
+                <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors" onClick={closeSheet}><Instagram size={24} /></Link>
+                <Button variant="default" size="lg" className="w-[10rem] mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { onOpenQuoteModal(); closeSheet(); }}>
                   Book Now
                 </Button>
               </nav>
