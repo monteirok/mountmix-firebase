@@ -54,6 +54,7 @@ const prompt = ai.definePrompt({
   input: {schema: CocktailSuggestionsByFlavorInputSchema},
   output: {schema: CocktailSuggestionsByFlavorOutputSchema},
   prompt: `You are a master mixologist. A user has requested cocktail suggestions based on the following flavor preferences: {{{flavorPreferences}}}.
+Suggest 6 cocktails that match these flavor preferences.
 For each cocktail you suggest, provide its name, a detailed recipe (ingredients and step-by-step instructions), and a concise 2-3 word image prompt (e.g., "classic margarita lime" or "smoky old fashioned").
 Respond with an array of objects, where each object contains 'name', 'recipe', and 'imagePrompt'. Ensure the recipe is formatted with newlines for ingredients and steps.`,
 });
