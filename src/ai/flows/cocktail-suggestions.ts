@@ -19,10 +19,24 @@ const CocktailSuggestionsInputSchema = z.object({
 });
 export type CocktailSuggestionsInput = z.infer<typeof CocktailSuggestionsInputSchema>;
 
+const CocktailDetailSchema = z.object({
+  name: z.string().describe('The name of the cocktail.'),
+  recipe: z
+    .string()
+    .describe(
+      'The detailed recipe for the cocktail, including ingredients and step-by-step instructions. Format as a single string with newlines for readability.'
+    ),
+  imagePrompt: z
+    .string()
+    .describe(
+      'A concise 2-3 word prompt suitable for generating an image of this cocktail, e.g., "whiskey sour garnish" or "blue margarita lime".'
+    ),
+});
+
 const CocktailSuggestionsOutputSchema = z.object({
   cocktails: z
-    .array(z.string())
-    .describe('A list of cocktail names that can be made with the provided ingredients.'),
+    .array(CocktailDetailSchema)
+    .describe('A list of cocktails, each with its name, recipe, and image prompt.'),
 });
 export type CocktailSuggestionsOutput = z.infer<typeof CocktailSuggestionsOutputSchema>;
 
@@ -36,12 +50,10 @@ const prompt = ai.definePrompt({
   name: 'cocktailSuggestionsPrompt',
   input: {schema: CocktailSuggestionsInputSchema},
   output: {schema: CocktailSuggestionsOutputSchema},
-  prompt: `You are a world-class bartender. A user will provide you with a list of ingredients that they have on hand.
-  Suggest 3 cocktails that can be made with those ingredients.
-  Respond with ONLY the names of the cocktails, separated by commas.
-
-  Ingredients: {{{ingredients}}}
-  `,
+  prompt: `You are a world-class bartender. A user has provided a list of ingredients: {{{ingredients}}}.
+Suggest 3 cocktails that can be made primarily with these ingredients.
+For each of the 3 cocktails, provide its name, a detailed recipe (ingredients and step-by-step instructions), and a concise 2-3 word image prompt (e.g., "vodka martini olive" or "rum punch fruit").
+Respond with an array of objects, where each object contains 'name', 'recipe', and 'imagePrompt'. Ensure the recipe is formatted with newlines for ingredients and steps.`,
 });
 
 const cocktailSuggestionsFlow = ai.defineFlow(

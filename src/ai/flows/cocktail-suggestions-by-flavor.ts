@@ -20,10 +20,24 @@ export type CocktailSuggestionsByFlavorInput = z.infer<
   typeof CocktailSuggestionsByFlavorInputSchema
 >;
 
+const CocktailDetailSchema = z.object({
+  name: z.string().describe('The name of the cocktail.'),
+  recipe: z
+    .string()
+    .describe(
+      'The detailed recipe for the cocktail, including ingredients and step-by-step instructions. Format as a single string with newlines for readability.'
+    ),
+  imagePrompt: z
+    .string()
+    .describe(
+      'A concise 2-3 word prompt suitable for generating an image of this cocktail, e.g., "classic margarita lime" or "smoky old fashioned".'
+    ),
+});
+
 const CocktailSuggestionsByFlavorOutputSchema = z.object({
   cocktailSuggestions: z
-    .string()
-    .describe('A list of cocktails that match the flavor preferences.'),
+    .array(CocktailDetailSchema)
+    .describe('A list of cocktails that match the flavor preferences, each with name, recipe, and image prompt.'),
 });
 export type CocktailSuggestionsByFlavorOutput = z.infer<
   typeof CocktailSuggestionsByFlavorOutputSchema
@@ -39,7 +53,9 @@ const prompt = ai.definePrompt({
   name: 'cocktailSuggestionsByFlavorPrompt',
   input: {schema: CocktailSuggestionsByFlavorInputSchema},
   output: {schema: CocktailSuggestionsByFlavorOutputSchema},
-  prompt: `You are a master mixologist. A user has requested cocktail suggestions based on the following flavor preferences: {{{flavorPreferences}}}. Please provide a list of cocktails that match these preferences.`,
+  prompt: `You are a master mixologist. A user has requested cocktail suggestions based on the following flavor preferences: {{{flavorPreferences}}}.
+For each cocktail you suggest, provide its name, a detailed recipe (ingredients and step-by-step instructions), and a concise 2-3 word image prompt (e.g., "classic margarita lime" or "smoky old fashioned").
+Respond with an array of objects, where each object contains 'name', 'recipe', and 'imagePrompt'. Ensure the recipe is formatted with newlines for ingredients and steps.`,
 });
 
 const cocktailSuggestionsByFlavorFlow = ai.defineFlow(

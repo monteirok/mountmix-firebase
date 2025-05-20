@@ -3,23 +3,29 @@
 import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
 import { SectionWrapper } from '@/components/common/section-wrapper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea'; // If needed for longer input
-import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CocktailByIngredientsSchema, CocktailByFlavorSchema, type CocktailByIngredientsValues, type CocktailByFlavorValues } from '@/lib/schemas';
 import { getCocktailSuggestionsByIngredients, getCocktailSuggestionsByFlavor } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Wand2, GlassWater, Loader2, ListChecks, Sparkles } from 'lucide-react';
+import { Wand2, GlassWater, Loader2, ListChecks, Sparkles, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+type CocktailDetail = {
+  name: string;
+  recipe: string;
+  imagePrompt: string;
+};
+
 type SuggestionResult = {
-  type: 'ingredients' | 'flavor';
-  suggestions: string[] | string; 
+  suggestions: CocktailDetail[];
 };
 
 export function CocktailConciergeSection() {
@@ -46,9 +52,10 @@ export function CocktailConciergeSection() {
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
       } else if (response.cocktails && response.cocktails.length > 0) {
-        setResults({ type: 'ingredients', suggestions: response.cocktails });
+        setResults({ suggestions: response.cocktails });
       } else {
-        setResults({ type: 'ingredients', suggestions: ["No specific cocktails found with these ingredients. Perhaps broaden your search?"] });
+        setResults({ suggestions: [] }); // Set to empty array for consistent handling
+        toast({ title: 'No Matches', description: "Couldn't find specific cocktails. Try different ingredients!", variant: 'default' });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to get suggestions. Please try again.', variant: 'destructive' });
@@ -64,10 +71,11 @@ export function CocktailConciergeSection() {
       const response = await getCocktailSuggestionsByFlavor(data);
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
-      } else if (response.cocktailSuggestions) {
-         setResults({ type: 'flavor', suggestions: response.cocktailSuggestions });
+      } else if (response.cocktailSuggestions && response.cocktailSuggestions.length > 0) {
+         setResults({ suggestions: response.cocktailSuggestions });
       } else {
-         setResults({ type: 'flavor', suggestions: "Couldn't find suggestions for that flavor. Try being more specific or general!" });
+         setResults({ suggestions: [] }); // Set to empty array
+         toast({ title: 'No Matches', description: "Couldn't find suggestions for that flavor. Try being more specific or general!", variant: 'default' });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to get suggestions. Please try again.', variant: 'destructive' });
@@ -172,16 +180,47 @@ export function CocktailConciergeSection() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.type === 'ingredients' && Array.isArray(results.suggestions) ? (
-                <ul className="list-disc list-inside space-y-2 text-foreground">
-                  {results.suggestions.map((suggestion, index) => (
-                    <li key={index} className="text-lg">{suggestion}</li>
+              {results.suggestions && results.suggestions.length > 0 ? (
+                <ul className="space-y-3">
+                  {results.suggestions.map((cocktail, index) => (
+                    <li key={index} className="text-foreground">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="link" 
+                            className="p-0 h-auto text-lg text-left font-medium text-primary hover:text-accent transition-colors flex items-center group"
+                          >
+                            {cocktail.name}
+                            <Info className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 md:w-96 shadow-xl bg-card border-border p-4 rounded-lg">
+                          <div className="grid gap-4">
+                            <div className="aspect-square w-full max-w-[180px] mx-auto bg-muted/50 rounded-md overflow-hidden ring-1 ring-border">
+                              <Image
+                                src={`https://placehold.co/200x200.png`}
+                                alt={`Placeholder image for ${cocktail.name}`}
+                                data-ai-hint={cocktail.imagePrompt}
+                                width={200}
+                                height={200}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-xl leading-none mb-2 text-primary">{cocktail.name}</h4>
+                              <h5 className="font-medium text-sm text-muted-foreground mb-1 mt-3">Recipe:</h5>
+                              <div className="text-sm text-foreground whitespace-pre-line max-h-60 overflow-y-auto p-3 rounded-md bg-muted/30 border border-border/50 custom-scrollbar">
+                                {cocktail.recipe}
+                              </div>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </li>
                   ))}
                 </ul>
-              ) : results.type === 'flavor' && typeof results.suggestions === 'string' ? (
-                 <p className="text-lg whitespace-pre-line">{results.suggestions}</p>
               ) : (
-                <p className="text-lg text-muted-foreground">No suggestions available at the moment.</p>
+                <p className="text-lg text-muted-foreground">No suggestions found. Try adjusting your search!</p>
               )}
             </CardContent>
           </Card>
