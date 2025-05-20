@@ -2,7 +2,6 @@
 'use client';
 
 import Image from 'next/image';
-// Link component is no longer needed here
 import { Button } from '@/components/ui/button';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
@@ -79,9 +78,9 @@ export function HeroSection({ onOpenQuoteModal }: HeroSectionProps) {
             size="lg" 
             className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-lg shadow-xl transform hover:scale-105 transition-transform"
             onClick={onOpenQuoteModal}
-            aria-label="Request a quote for our services"
+            aria-label="Book our services"
           >
-            Request a Quote
+            Book Now
           </Button>
         </motion.div>
       </motion.div>

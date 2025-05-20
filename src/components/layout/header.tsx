@@ -32,7 +32,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
     { label: 'Services', href: '#services' },
     { label: 'Gallery', href: '#gallery' },
     { label: 'Concierge', href: '#concierge' },
-    { label: 'Contact', action: onOpenQuoteModal, isButton: true as const },
+    // { label: 'Contact', action: onOpenQuoteModal, isButton: true as const }, // Removed Contact link
   ];
 
   return (
@@ -44,7 +44,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
         <Logo />
         <nav className="hidden items-center space-x-6 md:flex">
           {navItems.map((item) => (
-            item.isButton && item.action ? (
+            item.action ? ( // This logic remains for any future action-based nav items
               <button
                 key={item.label}
                 onClick={item.action}
@@ -65,7 +65,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
           ))}
           <ThemeToggle />
           <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={onOpenQuoteModal}>
-            Get a Quote
+            Book Now
           </Button>
         </nav>
         <div className="md:hidden flex items-center space-x-2">
@@ -80,7 +80,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
             <SheetContent 
               side="right" 
               className="w-[280px] bg-background p-6"
-              hideDefaultCloseButton={true} // Add this prop
+              hideDefaultCloseButton={true}
             >
               <div className="mb-8 flex justify-between items-center">
                 <Logo />
@@ -91,7 +91,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
               </div>
               <nav className="flex flex-col space-y-4">
                 {navItems.map((item) => (
-                  item.isButton && item.action ? (
+                  item.action ? (
                     <button
                       key={item.label}
                       onClick={() => { item.action!(); closeSheet(); }}
@@ -112,7 +112,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                   )
                 ))}
                 <Button variant="default" size="lg" className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { onOpenQuoteModal(); closeSheet(); }}>
-                  Get a Quote
+                  Book Now
                 </Button>
               </nav>
             </SheetContent>

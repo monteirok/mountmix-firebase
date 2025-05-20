@@ -1,10 +1,10 @@
 
-import Link from 'next/link'; // Keep Link for other navigation
-import { Facebook, Instagram, Twitter } from 'lucide-react'; // Removed Martini and Mountain as Logo component handles its icon
+import Link from 'next/link';
+import { Facebook, Instagram, Twitter } from 'lucide-react';
 import { Logo } from '@/components/common/logo';
 
 interface FooterProps {
-  onOpenQuoteModal: () => void;
+  onOpenQuoteModal: () => void; // Retain for potential future use if "Book Now" or similar is added to footer
 }
 
 export function Footer({ onOpenQuoteModal }: FooterProps) {
@@ -26,6 +26,7 @@ export function Footer({ onOpenQuoteModal }: FooterProps) {
             <Link href="#services" className="hover:text-accent transition-colors text-sm">Services</Link>
             <Link href="#gallery" className="hover:text-accent transition-colors text-sm">Gallery</Link>
             <Link href="#concierge" className="hover:text-accent transition-colors text-sm">Cocktail Concierge</Link>
+            {/* Removed Contact Us button. Can be replaced with a Book Now button if desired.
             <button 
               onClick={onOpenQuoteModal} 
               className="hover:text-accent transition-colors text-sm"
@@ -33,6 +34,7 @@ export function Footer({ onOpenQuoteModal }: FooterProps) {
             >
               Contact Us
             </button>
+            */}
           </nav>
 
           <div className="flex flex-col items-center md:items-end">

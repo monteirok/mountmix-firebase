@@ -21,16 +21,18 @@ export async function submitContactForm(
   }
 
   // Simulate sending an email or saving to a database
-  console.log('Quote Request Received:', validatedFields.data);
+  console.log('Booking Request Received:', validatedFields.data);
   // In a real app, you would integrate with an email service or CRM here.
   // For example: await sendEmail(validatedFields.data);
 
   // Artificial delay to simulate network latency
   await new Promise(resolve => setTimeout(resolve, 1000));
 
+  // The message here should be generic as it's used by the toast in the component
+  // The component itself will show a more booking-specific toast title.
   return {
     success: true,
-    message: 'Your quote request has been submitted successfully! We will get back to you shortly.',
+    message: 'Your request has been submitted successfully! We will get back to you shortly.',
   };
 }
 

@@ -10,9 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { ContactFormSchema, type ContactFormValues } from '@/lib/schemas';
 import { submitContactForm } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Send, Loader2 } from 'lucide-react';
+import { Mail, Send, Loader2, CalendarCheck } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ContactSectionProps {
   isOpen: boolean;
@@ -37,11 +38,12 @@ export function ContactSection({ isOpen, onOpenChange }: ContactSectionProps) {
   const onSubmit: SubmitHandler<ContactFormValues> = async (data) => {
     setIsSubmitting(true);
     try {
-      const result = await submitContactForm(data);
+      // Re-using submitContactForm but the success message could be more booking-specific
+      const result = await submitContactForm(data); 
       if (result.success) {
         toast({
-          title: 'Success!',
-          description: result.message,
+          title: 'Booking Request Sent!',
+          description: "We've received your request and will be in touch shortly to finalize details.",
           variant: 'default',
         });
         form.reset();
@@ -63,7 +65,7 @@ export function ContactSection({ isOpen, onOpenChange }: ContactSectionProps) {
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to submit your request. Please try again later.',
+        description: 'Failed to submit your booking request. Please try again later.',
         variant: 'destructive',
       });
     } finally {
@@ -73,99 +75,103 @@ export function ContactSection({ isOpen, onOpenChange }: ContactSectionProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-lg max-h-[calc(100dvh-4rem)] overflow-y-auto p-6 sm:p-8 md:p-10 rounded-xl">
-        <DialogHeader className="text-center mb-6 md:mb-8">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-lg max-h-[calc(100dvh-4rem)] flex flex-col rounded-xl">
+        <DialogHeader className="text-center pt-6 sm:pt-8 md:pt-10 px-6 sm:px-8 md:px-10">
           <div className="flex flex-col items-center">
-            <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
-            <DialogTitle className="text-3xl md:text-4xl font-bold text-primary mb-3">Request a Quote</DialogTitle>
+            <CalendarCheck className="h-12 w-12 text-primary mx-auto mb-4" />
+            <DialogTitle className="text-3xl md:text-4xl font-bold text-primary mb-3">Book Your Event</DialogTitle>
             <DialogDescription className="text-lg md:text-xl text-foreground max-w-3xl mx-auto">
-              Ready to elevate your event? Fill out the form below, and we'll be in touch to discuss your custom cocktail experience.
+              Ready to elevate your event? Fill out the form below, and we'll be in touch to finalize your booking.
             </DialogDescription>
           </div>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Jane Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="you@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="eventDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Prospective Event Date (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="eventDetails"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Event Type & Guest Count (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Wedding, 75 guests" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Your Message</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Tell us about your event and what you're looking for..." rows={5} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-5 w-5" />
-                  Send Request
-                </>
-              )}
-            </Button>
-          </form>
-        </Form>
+        <ScrollArea className="flex-grow overflow-y-auto">
+          <div className="px-6 sm:px-8 md:px-10 pb-6 sm:pb-8 md:pb-10">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Jane Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="you@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="eventDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prospective Event Date (Optional)</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="eventDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Event Type & Guest Count (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Wedding, 75 guests" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Details</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Tell us more about your event and any specific requests..." rows={5} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-5 w-5" />
+                      Submit Booking Request
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
