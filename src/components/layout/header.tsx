@@ -64,7 +64,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
             )
           ))}
           {/* <ThemeToggle /> */}
-          <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
+          <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors" target='_blank'><Instagram size={24} /></Link>
           <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={onOpenQuoteModal}>
             Book Now
           </Button>
