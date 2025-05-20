@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Logo } from '@/components/common/logo';
 // import { ThemeToggle } from '@/components/common/theme-toggle';
 import { cn } from '@/lib/utils';
+import { Instagram } from 'lucide-react';
 
 interface HeaderProps {
   onOpenQuoteModal: () => void;
@@ -63,6 +64,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
             )
           ))}
           {/* <ThemeToggle /> */}
+          <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
           <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={onOpenQuoteModal}>
             Book Now
           </Button>
@@ -88,13 +90,13 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                   <span className="sr-only">Close menu</span>
                 </Button>
               </div>
-              <nav className="flex flex-col space-y-4">
+              <nav className="flex flex-col gap-4 justify-center items-center">
                 {navItems.map((item) => (
                   item.action ? (
                     <button
                       key={item.label}
                       onClick={() => { item.action!(); closeSheet(); }}
-                      className="text-lg font-medium text-foreground hover:text-primary transition-colors text-left"
+                      className="mtext-lg font-medium text-foreground hover:text-primary transition-colors text-left"
                       aria-label={`Open ${item.label} modal`}
                     >
                       {item.label}
@@ -110,7 +112,8 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                     </Link>
                   )
                 ))}
-                <Button variant="default" size="lg" className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { onOpenQuoteModal(); closeSheet(); }}>
+                <Link href="https://instagram.com/mountain.mixology" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={24} /></Link>
+                <Button variant="default" size="lg" className="w-[10rem] mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { onOpenQuoteModal(); closeSheet(); }}>
                   Book Now
                 </Button>
               </nav>
