@@ -30,9 +30,9 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
 
   const navItems = [
     { label: 'Services', href: '#services' },
+    { label: 'About', href: '#about' },
     { label: 'Gallery', href: '#gallery' },
     { label: 'Concierge', href: '#concierge' },
-    // { label: 'Contact', action: onOpenQuoteModal, isButton: true as const }, // Removed Contact link
   ];
 
   return (
@@ -44,7 +44,7 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
         <Logo />
         <nav className="hidden items-center space-x-6 md:flex">
           {navItems.map((item) => (
-            item.action ? ( // This logic remains for any future action-based nav items
+            item.action ? ( 
               <button
                 key={item.label}
                 onClick={item.action}

@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/sections/hero-section';
 import { ServicesSection } from '@/components/sections/services-section';
+import { AboutSection } from '@/components/sections/about-section';
 import { GallerySection } from '@/components/sections/gallery-section';
 import { ContactSection } from '@/components/sections/contact-section'; // This is now the modal
 import { CocktailConciergeSection } from '@/components/sections/cocktail-concierge-section';
@@ -23,6 +24,7 @@ export default function HomePage() {
       <main className="flex-grow">
         <HeroSection onOpenQuoteModal={handleOpenQuoteModal} />
         <ServicesSection />
+        <AboutSection />
         <GallerySection />
         <CocktailConciergeSection />
         {/* ContactSection (modal) is rendered below, outside the main flow */}
