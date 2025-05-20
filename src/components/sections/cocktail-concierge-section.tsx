@@ -23,7 +23,7 @@ type CocktailDetail = {
   name: string;
   recipe: string;
   imagePrompt: string;
-  imageDataUri?: string | 'loading' | 'error'; // Added for dynamic image loading
+  imageDataUri?: 'loading' | 'error' | string;
 };
 
 type SuggestionResult = {
@@ -46,6 +46,35 @@ export function CocktailConciergeSection() {
     defaultValues: { flavorPreferences: '' },
   });
 
+  const generateAndSetImage = async (imagePrompt: string, cocktailName: string, cocktailIndex: number) => {
+    try {
+      const imageResponse = await generateCocktailImage({ prompt: imagePrompt });
+      if ('imageUrl' in imageResponse && imageResponse.imageUrl) {
+        setResults(prevResults => {
+          if (!prevResults) return null;
+          const newSuggestions = [...prevResults.suggestions];
+          if (newSuggestions[cocktailIndex]) {
+            newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: imageResponse.imageUrl };
+          }
+          return { suggestions: newSuggestions };
+        });
+      } else {
+        throw new Error((imageResponse as { error: string }).error || 'Image generation returned no URL.');
+      }
+    } catch (error) {
+      console.error(`Failed to generate image for cocktail "${cocktailName}" (prompt: "${imagePrompt}"):`, error);
+      setResults(prevResults => {
+        if (!prevResults) return null;
+        const newSuggestions = [...prevResults.suggestions];
+        if (newSuggestions[cocktailIndex]) {
+          newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: 'error' as const };
+        }
+        return { suggestions: newSuggestions };
+      });
+      toast({ title: 'Image Error', description: `Could not generate image for ${cocktailName}.`, variant: 'destructive' });
+    }
+  };
+
   const onIngredientsSubmit: SubmitHandler<CocktailByIngredientsValues> = async (data) => {
     setIsLoadingIngredients(true);
     setResults(null);
@@ -53,15 +82,25 @@ export function CocktailConciergeSection() {
       const response = await getCocktailSuggestionsByIngredients(data);
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
+        setResults({ suggestions: [] });
       } else if (response.cocktails && response.cocktails.length > 0) {
-        const suggestionsWithImageState = response.cocktails.map(c => ({ ...c, imageDataUri: undefined as (string | 'loading' | 'error' | undefined) }));
-        setResults({ suggestions: suggestionsWithImageState });
+        const suggestionsWithLoadingState = response.cocktails.map(c => ({ 
+          ...c, 
+          imageDataUri: 'loading' as const 
+        }));
+        setResults({ suggestions: suggestionsWithLoadingState });
+        
+        suggestionsWithLoadingState.forEach((cocktail, index) => {
+          generateAndSetImage(cocktail.imagePrompt, cocktail.name, index);
+        });
+
       } else {
         setResults({ suggestions: [] }); 
         toast({ title: 'No Matches', description: "Couldn't find specific cocktails. Try different ingredients!", variant: 'default' });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to get suggestions. Please try again.', variant: 'destructive' });
+      setResults({ suggestions: [] });
     } finally {
       setIsLoadingIngredients(false);
     }
@@ -74,60 +113,27 @@ export function CocktailConciergeSection() {
       const response = await getCocktailSuggestionsByFlavor(data);
       if ('error' in response) {
         toast({ title: 'Error', description: response.error, variant: 'destructive' });
+        setResults({ suggestions: [] });
       } else if (response.cocktailSuggestions && response.cocktailSuggestions.length > 0) {
-         const suggestionsWithImageState = response.cocktailSuggestions.map(c => ({ ...c, imageDataUri: undefined as (string | 'loading' | 'error' | undefined) }));
-         setResults({ suggestions: suggestionsWithImageState });
+         const suggestionsWithLoadingState = response.cocktailSuggestions.map(c => ({ 
+           ...c, 
+           imageDataUri: 'loading' as const 
+          }));
+         setResults({ suggestions: suggestionsWithLoadingState });
+
+         suggestionsWithLoadingState.forEach((cocktail, index) => {
+          generateAndSetImage(cocktail.imagePrompt, cocktail.name, index);
+        });
+
       } else {
          setResults({ suggestions: [] });
          toast({ title: 'No Matches', description: "Couldn't find suggestions for that flavor. Try being more specific or general!", variant: 'default' });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to get suggestions. Please try again.', variant: 'destructive' });
+      setResults({ suggestions: [] });
     } finally {
       setIsLoadingFlavor(false);
-    }
-  };
-
-  const handlePopoverOpenChange = async (isOpen: boolean, cocktailIndex: number, imagePromptToUse: string) => {
-    if (isOpen && results && results.suggestions[cocktailIndex] && results.suggestions[cocktailIndex].imageDataUri === undefined) {
-      
-      setResults(prevResults => {
-        if (!prevResults) return null;
-        const newSuggestions = [...prevResults.suggestions];
-        if (newSuggestions[cocktailIndex]) {
-          newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: 'loading' };
-        }
-        return { suggestions: newSuggestions };
-      });
-  
-      try {
-        const imageResponse = await generateCocktailImage({ prompt: imagePromptToUse }); 
-        
-        if ('imageUrl' in imageResponse && imageResponse.imageUrl) {
-          setResults(prevResults => {
-            if (!prevResults) return null;
-            const newSuggestions = [...prevResults.suggestions];
-            if (newSuggestions[cocktailIndex]) {
-              newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: imageResponse.imageUrl };
-            }
-            return { suggestions: newSuggestions };
-          });
-        } else {
-          const errorMessage = (imageResponse as { error: string }).error || 'Image generation returned no URL.';
-          throw new Error(errorMessage);
-        }
-      } catch (error) {
-        console.error("Failed to generate cocktail image:", error);
-        setResults(prevResults => {
-          if (!prevResults) return null;
-          const newSuggestions = [...prevResults.suggestions];
-          if (newSuggestions[cocktailIndex]) {
-            newSuggestions[cocktailIndex] = { ...newSuggestions[cocktailIndex], imageDataUri: 'error' };
-          }
-          return { suggestions: newSuggestions };
-        });
-        toast({ title: 'Image Error', description: (error instanceof Error ? error.message : 'Could not generate cocktail image.'), variant: 'destructive' });
-      }
     }
   };
 
@@ -231,7 +237,7 @@ export function CocktailConciergeSection() {
                 <ul className="space-y-3">
                   {results.suggestions.map((cocktail, index) => (
                     <li key={index} className="text-foreground">
-                      <Popover onOpenChange={(isOpen) => handlePopoverOpenChange(isOpen, index, cocktail.imagePrompt)}>
+                      <Popover>
                         <PopoverTrigger asChild>
                           <Button 
                             variant="link" 
@@ -261,14 +267,14 @@ export function CocktailConciergeSection() {
                                     <Image
                                       src={cocktail.imageDataUri}
                                       alt={`Generated image for ${cocktail.name}`}
-                                      data-ai-hint={cocktail.imagePrompt}
+                                      data-ai-hint={cocktail.imagePrompt} // Keep hint for accessibility/fallback context
                                       width={200}
                                       height={200}
                                       className="object-cover w-full h-full"
                                     />
                                   );
                                 }
-                                // Default placeholder
+                                // Default placeholder if imageDataUri is undefined (e.g. initial state before 'loading' is set)
                                 return (
                                   <Image
                                     src={`https://placehold.co/200x200.png`}
@@ -276,7 +282,7 @@ export function CocktailConciergeSection() {
                                     data-ai-hint={cocktail.imagePrompt}
                                     width={200}
                                     height={200}
-                                    className="object-cover w-full h-full"
+                                    className="object-cover w-full h-full opacity-50" // Differentiate placeholder visually
                                   />
                                 );
                               })()}
@@ -295,7 +301,9 @@ export function CocktailConciergeSection() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-lg text-muted-foreground">No suggestions found. Try adjusting your search!</p>
+                <p className="text-lg text-muted-foreground">
+                  { (isLoadingIngredients || isLoadingFlavor) ? 'Loading suggestions...' : 'No suggestions found. Try adjusting your search!'}
+                </p>
               )}
             </CardContent>
           </Card>
